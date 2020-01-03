@@ -28,7 +28,6 @@ public class HashCracker {
         //TODO:Begin Communication
 
 
-
     }
 
     /**
