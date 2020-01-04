@@ -153,8 +153,8 @@ public class Message {
     private static char[] getHashFromMessage(byte[] message) {
         char[] hash = new char[40];
 
-        for (int i = 34; i < 34 + hash.length; i++) {
-            hash[i] = (char) message[i];
+        for (int i = 0; i < hash.length; i++) {
+            hash[i] = (char) message[i + 33];
         }
         return hash;
     }
@@ -169,16 +169,16 @@ public class Message {
 
         char messageType = getMessageTypeFromMessage(message);
 
-        switch (messageType) {
-            case '1': {
+        switch ((int)messageType) {
+            case 1: {
                 return generateDiscoverMessage(teamName);
             }
-            case '2': {
+            case 2: {
                 return generateOfferMessage(teamName);
             }
-            case '3': {
+            case 3: {
                 char[] messageHash = getHashFromMessage(message);
-                char originalMessageLength = (char) message[74];
+                char originalMessageLength = (char) message[73];
 
                 int messageLengthLeft = message.length - 74;
                 int originalStringSize = messageLengthLeft/2;
@@ -195,7 +195,7 @@ public class Message {
 
                 return generateRequestMessage(teamName, messageHash, originalMessageLength, originalStringStart, originalStringEnd);
             }
-            case '4': {
+            case 4: {
                 char[] messageHash = getHashFromMessage(message);
                 char originalMessageLength = (char) message[74];
                 char[] originalStringStart = new char[message.length - 74];
@@ -204,7 +204,7 @@ public class Message {
                 }
                 return generateAcknowledgeMessage(teamName, messageHash, originalMessageLength, originalStringStart);
             }
-            case '5': {
+            case 5: {
                 char[] messageHash = getHashFromMessage(message);
                 char originalMessageLength = (char) message[74];
                 return generateNegativeAcknowledgeMessage(teamName, messageHash, originalMessageLength);
