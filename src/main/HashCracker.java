@@ -16,17 +16,19 @@ public class HashCracker {
         AClient client = new Client();
 
         boolean startUpSucceeded = startUp(client, servers);
+        if(!startUpSucceeded){
+            System.out.println("start up failed");
+            return;
+        }
 
         //Try to receive input
         if(!client.receiveInputs(GROUPNAME)){
-            System.out.println("GoodBye");
             //TODO:ShutDown everything
             shutdown(client,servers);
             return;
         }
         //From now on good inputs are assumed
         //TODO:Begin Communication
-
 
 
     }
@@ -61,7 +63,7 @@ public class HashCracker {
             }
         }
 
-        System.out.println("Raising the Client (like a baby ANTICHRIST)");
+        System.out.println("Raising the Client (like the baby ANTICHRIST)");
         if (isGoodStartUp) {
             if (!client.startUp()) {
                 System.out.println("client died - sad, so sad ~~> killing the servers and exiting");
