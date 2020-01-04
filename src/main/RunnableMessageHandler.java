@@ -101,6 +101,7 @@ public class RunnableMessageHandler implements Runnable {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+        
     }
 
     private int convertStringToInt(String toConvert) {
