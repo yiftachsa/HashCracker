@@ -1,6 +1,7 @@
 public abstract class AClient {
 
-    private static final double SERVERTIMEOUT = 1000000; //FIXME: Set a timer
+    protected static final double SERVERTIMEOUT = 1000000; //FIXME: Set a timer
+    protected static final long OFFERSTIMEOUT = 1000000;
 
     protected char[] hash;
 
@@ -23,4 +24,9 @@ public abstract class AClient {
      * @return - boolean - true if all inputs were successfully received
      */
     public abstract boolean receiveInputs(String groupname);
+
+    /**
+     * Finds servers to decrypt the hash and sends the hash to the discovered servers.
+     */
+    public abstract void beginCommunication();
 }
