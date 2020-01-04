@@ -6,7 +6,6 @@ import java.util.Scanner;
 
 public class Client extends AClient {
 
-    private DatagramSocket UDPSocket;
 
     @Override
     public boolean startUp() {
@@ -112,13 +111,7 @@ public class Client extends AClient {
         long offerCollectionCurrentTime;
         long offerCollectionEndTime = System.currentTimeMillis() + OFFERSTIMEOUT;
         while ((offerCollectionCurrentTime = System.currentTimeMillis()) < offerCollectionEndTime) {
-            UDPPacket = new DatagramPacket(receivedMessageBytes, receivedMessageBytes.length);
-
-            try {
-                UDPSocket.receive(UDPPacket);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            UDPPacket = receivePacket(receivedMessageBytes);
 
             char messageType = Message.getMessageTypeFromMessage(receivedMessageBytes);
             if (messageType == 2) {
@@ -135,10 +128,47 @@ public class Client extends AClient {
         for (int i = 0; i < domains.length; i = i+2) {
             sendRequestMessage(domains[i], domains[i+1], servers[serverIndex++]);
         }
-        //TODO: Recieve messages from servers for TIMEOUT time.
-        //TODO:Display results
+
+        long responsesCollectionCurrentTime;
+        long responsesCollectionEndTime = System.currentTimeMillis() + SERVERRESPONSETIMEOUT;
+        boolean solved = false;
+        char[] result = null;
+        while(discoveredServers.size()>0 && !solved && ((responsesCollectionCurrentTime = System.currentTimeMillis())<responsesCollectionEndTime)){
+            UDPPacket = receivePacket(receivedMessageBytes);
+
+            Message receivedMessage = Message.getMessageFromBytes(receivedMessageBytes);
+            if (receivedMessage.getType() == 4) { //ACK
+                result = receivedMessage.getOriginalStringStart();
+                solved = true;
+            } else if(receivedMessage.getType() == 5){ //NACK
+                discoveredServers.remove(UDPPacket.getAddress());
+            }
+            receivedMessageBytes = new byte[HashCracker.MAXMESSAGESIZE];
+        }
+
+        displayResults(result,solved);
+
     }
 
+    private void displayResults(char[] result, boolean solved) {
+        if(!solved || result == null){
+            System.out.println("The servers gods have been beaten! \nWe couldn't crack your code\n The APOCALYPSE has been delayed (until next time)");
+        } else {
+            System.out.println("    HA~HA~HA    \n We have cracked your code \n You have chosen poorly");
+            System.out.println("The input string is "+String.copyValueOf(result));
+        }
+    }
+
+
+    private DatagramPacket receivePacket(byte[] receivedMessageBytes) {
+        DatagramPacket UDPPacket = new DatagramPacket(receivedMessageBytes, receivedMessageBytes.length);
+        try {
+            UDPSocket.receive(UDPPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return UDPPacket;
+    }
 
 
     /**
