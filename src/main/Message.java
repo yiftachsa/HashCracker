@@ -180,17 +180,17 @@ public class Message {
                 char[] messageHash = getHashFromMessage(message);
                 char originalMessageLength = (char) message[73];
 
-                int messageLengthLeft = message.length - 74;
-                int originalStringSize = messageLengthLeft/2;
+//                int messageLengthLeft = message.length - 74;
+//                int originalStringSize = messageLengthLeft/2;
 
-                char[] originalStringStart = new char[originalStringSize];
+                char[] originalStringStart = new char[originalMessageLength];
                 for (int i = 0; i < originalStringStart.length; i++) {
                     originalStringStart[i] = (char) message[i + 74];
                 }
 
-                char[] originalStringEnd = new char[originalStringSize];
+                char[] originalStringEnd = new char[originalMessageLength];
                 for (int i = 0; i < originalStringEnd.length; i++) {
-                    originalStringEnd[i] = (char) message[i +originalStringSize+ 74];
+                    originalStringEnd[i] = (char) message[i +originalMessageLength+ 74];
                 }
 
                 return generateRequestMessage(teamName, messageHash, originalMessageLength, originalStringStart, originalStringEnd);

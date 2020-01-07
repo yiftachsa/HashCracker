@@ -2,14 +2,13 @@ import java.net.DatagramSocket;
 
 public abstract class AClient {
 
-    protected static final long SERVERRESPONSETIMEOUT = 10000; //FIXME: Set a timer
+    protected static final long SERVERRESPONSETIMEOUT = 100000; //FIXME: Set a timer
     protected static final long OFFERSTIMEOUT = 1000;
 
     protected char[] hash;
 
     protected int inputLength;
 
-    protected DatagramSocket UDPSocket;
 
     /**
      * Start up the client's communication socket.

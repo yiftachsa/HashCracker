@@ -1,16 +1,17 @@
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
 
 public class Client extends AClient {
 
+    private DatagramSocket UDPSocket;
+
 
     @Override
     public boolean startUp() {
         try {
-            this.UDPSocket = new DatagramSocket(4061); //Because Merav loves herself
+            this.UDPSocket = new DatagramSocket(4062); //Because Merav loves herself
         } catch (SocketException e) {
             return false;
         }
@@ -111,61 +112,75 @@ public class Client extends AClient {
         long offerCollectionCurrentTime;
         long offerCollectionEndTime = System.currentTimeMillis() + OFFERSTIMEOUT;
         while ((offerCollectionCurrentTime = System.currentTimeMillis()) < offerCollectionEndTime) {
-            UDPPacket = receivePacket(receivedMessageBytes);
+            System.out.println("Client - Before receiving OFFER message");
+            UDPPacket = receivePacket(receivedMessageBytes,(offerCollectionEndTime - offerCollectionCurrentTime));
+            if (UDPPacket == null) {
+                continue;
+            }
 
             char messageType = Message.getMessageTypeFromMessage(receivedMessageBytes);
             if (messageType == 2) {
                 discoveredServers.add(UDPPacket.getAddress());
             }
             receivedMessageBytes = new byte[HashCracker.MAXMESSAGESIZE];
+
         }
 
         InetAddress[] servers = new InetAddress[discoveredServers.size()];
         discoveredServers.toArray(servers);
 
+        System.out.println("Client - servers discovered: ");
+        for (InetAddress address : servers) {
+            System.out.println(address.toString());
+        }
         int serverIndex = 0;
         String[] domains = divideToDomains(inputLength, discoveredServers.size());
-        for (int i = 0; i < domains.length; i = i+2) {
-            sendRequestMessage(domains[i], domains[i+1], servers[serverIndex++]);
+        for (int i = 0; i < domains.length; i = i + 2) {
+            System.out.println("Client - Before send REQUEST messages");
+            sendRequestMessage(domains[i], domains[i + 1], servers[serverIndex++]);
+            System.out.println("Client - After send REQUEST messages");
         }
 
         long responsesCollectionCurrentTime;
         long responsesCollectionEndTime = System.currentTimeMillis() + SERVERRESPONSETIMEOUT;
         boolean solved = false;
         char[] result = null;
-        while(discoveredServers.size()>0 && !solved && ((responsesCollectionCurrentTime = System.currentTimeMillis())<responsesCollectionEndTime)){
-            UDPPacket = receivePacket(receivedMessageBytes);
-
+        while (discoveredServers.size() > 0 && !solved && ((responsesCollectionCurrentTime = System.currentTimeMillis()) < responsesCollectionEndTime)) {
+            UDPPacket = receivePacket(receivedMessageBytes, (responsesCollectionEndTime-responsesCollectionCurrentTime));
+            if (UDPPacket == null) {
+                continue;
+            }
             Message receivedMessage = Message.getMessageFromBytes(receivedMessageBytes);
             if (receivedMessage.getType() == 4) { //ACK
                 result = receivedMessage.getOriginalStringStart();
                 solved = true;
-            } else if(receivedMessage.getType() == 5){ //NACK
+            } else if (receivedMessage.getType() == 5) { //NACK
                 discoveredServers.remove(UDPPacket.getAddress());
             }
             receivedMessageBytes = new byte[HashCracker.MAXMESSAGESIZE];
         }
 
-        displayResults(result,solved);
+        displayResults(result, solved);
 
     }
 
     private void displayResults(char[] result, boolean solved) {
-        if(!solved || result == null){
-            System.out.println("The servers gods have been beaten! \nWe couldn't crack your code\n The APOCALYPSE has been delayed (until next time)");
+        if (!solved || result == null) {
+            System.out.println("\tThe servers gods have been beaten!\n\tWe couldn't crack your code\n\tThe APOCALYPSE has been delayed (until next time)");
         } else {
-            System.out.println("    HA~HA~HA    \n We have cracked your code \n You have chosen poorly");
-            System.out.println("The input string is "+String.copyValueOf(result));
+            System.out.println("    HA~HA~HA    \n\tWe have cracked your code \n\tYou have chosen poorly");
+            System.out.println("\tThe input string is " + String.copyValueOf(result));
         }
     }
 
 
-    private DatagramPacket receivePacket(byte[] receivedMessageBytes) {
+    private DatagramPacket receivePacket(byte[] receivedMessageBytes, long offerCollectionCurrentTime) { //FIXME: Recive timeout as parameter
         DatagramPacket UDPPacket = new DatagramPacket(receivedMessageBytes, receivedMessageBytes.length);
         try {
+            UDPSocket.setSoTimeout((int) offerCollectionCurrentTime); //FIXME:!!
             UDPSocket.receive(UDPPacket);
         } catch (IOException e) {
-            e.printStackTrace();
+            return null;
         }
         return UDPPacket;
     }
@@ -175,7 +190,7 @@ public class Client extends AClient {
      * Sends an Request message to the given IP.
      */
     private void sendRequestMessage(String stringStart, String stringEnd, InetAddress IP) {
-        Message requestMessage = Message.generateRequestMessage(HashCracker.GROUPNAME, hash, (char)inputLength, stringStart.toCharArray(),stringEnd.toCharArray());
+        Message requestMessage = Message.generateRequestMessage(HashCracker.GROUPNAME, hash, (char) inputLength, stringStart.toCharArray(), stringEnd.toCharArray());
         sendMessage(IP, requestMessage.convertToByteArray());
     }
 
@@ -197,7 +212,9 @@ public class Client extends AClient {
 
         DatagramPacket UDPDiscoverPacket = new DatagramPacket(messageByteArray, messageByteArray.length, InetAddress.getByName("255.255.255.255"), 3117);
 
+        System.out.println("Client - Before Discover message sent");
         UDPSocket.send(UDPDiscoverPacket);
+        System.out.println("Client - After Discover message sent");
 
         this.UDPSocket.setBroadcast(false);
 

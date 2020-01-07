@@ -10,19 +10,23 @@ public class RunnableMessageHandler implements Runnable {
     private DatagramSocket UDPSocket;
     private DatagramPacket UDPPacket;
     private byte[] message;
+    private long solveTimeout;
 
-    public RunnableMessageHandler(DatagramSocket UDPSocket, byte[] receivedMessage, DatagramPacket UDPPacket) {
+    public RunnableMessageHandler(DatagramSocket UDPSocket, byte[] receivedMessage, DatagramPacket UDPPacket, long solveTimeout) {
         this.UDPSocket = UDPSocket;
         this.message = receivedMessage;
         this.UDPPacket = UDPPacket;
+        this.solveTimeout = solveTimeout;
     }
 
     @Override
     public void run() {
         char messageType = Message.getMessageTypeFromMessage(message);
         if (messageType == 1) { //Discover
+            System.out.println("Server - Received discovered message");
             /*SEND OFFER MESSAGE*/
             sendOfferMessage();
+            System.out.println("Server - Send OFFER message");
         } else if (messageType == 3) { //Request
             Message receivedMessage = Message.getMessageFromBytes(message);
             String result = tryDeHash(String.copyValueOf(receivedMessage.getOriginalStringStart()),String.copyValueOf(receivedMessage.getOriginalStringEnd()),String.copyValueOf(receivedMessage.getHash())); //FIXME: NO LENGTH
@@ -75,11 +79,15 @@ public class RunnableMessageHandler implements Runnable {
 
 
     private String tryDeHash(String startRange, String endRange, String originalHash) {
-        int start = convertStringToInt(startRange);
-        int end = convertStringToInt(endRange);
+        BigInteger start = convertStringToInt(startRange);
+        BigInteger end = convertStringToInt(endRange);
         int length = startRange.length();
-        for (int i = start; i <= end; i++) {
-            String currentString = converxtIntToString(i, length);
+
+
+        long endTime = System.currentTimeMillis() + this.solveTimeout;
+
+        for (BigInteger i = start; i.compareTo(end) <=0 && (System.currentTimeMillis() < endTime); i=i.add(new BigInteger("1"))) {
+            String currentString = convertIntToString(i, length);
             String hash = hash(currentString);
             if (originalHash.equals(hash)) {
                 return currentString;
@@ -101,29 +109,30 @@ public class RunnableMessageHandler implements Runnable {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-        
+
     }
 
-    private int convertStringToInt(String toConvert) {
+    private BigInteger convertStringToInt(String toConvert) {
         char[] charArray = toConvert.toCharArray();
-        int num = 0;
+        BigInteger num = new BigInteger("0");
         for (char c : charArray) {
             if (c < 'a' || c > 'z') {
                 throw new RuntimeException();
             }
-            num *= 26;
-            num += c - 'a';
+            num = num.multiply(new BigInteger("26"));
+            int x = c - 'a';
+            num = num.add(new BigInteger(Integer.toString(x)));
         }
         return num;
     }
 
 
-    private String converxtIntToString(int toConvert, int length) {
+    private String convertIntToString(BigInteger toConvert, int length) {
         StringBuilder s = new StringBuilder(length);
-        while (toConvert > 0) {
-            int c = toConvert % 26;
-            s.insert(0, (char) (c + 'a'));
-            toConvert /= 26;
+        while (toConvert.compareTo(new BigInteger("0")) > 0) {
+            BigInteger c = toConvert.mod(new BigInteger("26"));
+            s.insert(0, (char) (c.intValue() + 'a'));
+            toConvert = toConvert.divide(new BigInteger("26"));
             length--;
         }
         while (length > 0) {
@@ -132,7 +141,5 @@ public class RunnableMessageHandler implements Runnable {
         }
         return s.toString();
     }
-
-
 }
 

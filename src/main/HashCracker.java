@@ -25,7 +25,6 @@ public class HashCracker {
 
         //Try to receive input
         if (!client.receiveInputs(new String(GROUPNAME))) {
-            //TODO:ShutDown everything
             shutdown(client, servers);
             return;
         }
@@ -36,6 +35,43 @@ public class HashCracker {
 
         shutdown(client, servers);
     }
+
+
+    public static void clientStation() {
+        System.out.println("Raising the Client (like the baby ANTICHRIST)");
+        AClient client = new Client();
+        if (!client.startUp()) {
+            System.out.println("client died - sad, so sad ~~> killing the servers and exiting");
+            return;
+        }
+        if (!client.receiveInputs(new String(GROUPNAME))) {
+            client.shutdown();
+            return;
+        }
+        client.beginCommunication();
+        client.shutdown();
+
+    }
+
+    public static void serverStation(long upTime) {
+        System.out.println("Raising the Servers (from HELL)");
+        AServer server = new Server();
+        if (!server.startUp()) {
+            System.out.println("start up failed");
+            return;
+        }
+/*
+        //Let the server live for upTime minutes
+        try {
+            Thread.sleep(upTime);//180000
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        server.shutdown();
+*/
+
+    }
+
 
     /**
      * Shuts down the given client and all the servers.
