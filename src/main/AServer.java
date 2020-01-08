@@ -1,5 +1,5 @@
 public abstract class AServer {
-    private static final double SOLVETIMEOUT = 1000000; //FIXME: Set a timer
+    protected static final long SOLVETIMEOUT = 10000; //FIXME: Set a timer
 
     /**
      * Start up the server's communication socket.
