@@ -1,5 +1,5 @@
 public abstract class AServer {
-    protected static final long SOLVETIMEOUT = 10000;
+    protected static final long SOLVETIMEOUT = 20000;
 
     /**
      * Start up the server's communication socket.

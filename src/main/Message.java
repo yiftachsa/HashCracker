@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class Message {
-    //TODO:Message
+
     private char[] teamName;
     private char type;
     private char[] hash;
@@ -135,13 +135,18 @@ public class Message {
      */
     public static char getMessageTypeFromMessage(byte[] message) {
         if (message != null && message.length > 32) {
-            return (char) message[32];
+            if(message[32] >0 && message[32] <6) {
+                return (char) message[32];
+            }
         }
         return 0;
     }
 
 
-    private static char[] getTeamNameFromMessage(byte[] message) {
+    private static char[] getTeamNameFromMessage(byte[] message) throws Exception {
+        if(message == null || message.length<32){
+            throw new Exception("Bad message detected");
+        }
         char[] teamName = new char[32];
 
         for (int i = 0; i < teamName.length; i++) {
@@ -165,11 +170,20 @@ public class Message {
      * @return - byte[] - message to reconstruct.
      */
     public static Message getMessageFromBytes(byte[] message) {
-        char[] teamName = getTeamNameFromMessage(message);
+        char[] teamName = new char[0];
+        try {
+            teamName = getTeamNameFromMessage(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         char messageType = getMessageTypeFromMessage(message);
 
         switch ((int)messageType) {
+            case 0: {
+                return null;
+            }
             case 1: {
                 return generateDiscoverMessage(teamName);
             }
@@ -180,8 +194,6 @@ public class Message {
                 char[] messageHash = getHashFromMessage(message);
                 char originalMessageLength = (char) message[73];
 
-//                int messageLengthLeft = message.length - 74;
-//                int originalStringSize = messageLengthLeft/2;
 
                 char[] originalStringStart = new char[originalMessageLength];
                 for (int i = 0; i < originalStringStart.length; i++) {

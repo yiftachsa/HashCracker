@@ -1,6 +1,6 @@
 public class HashCracker {
 
-    public static final char[] GROUPNAME = (new String("we don't have time for this")).toCharArray();
+    public static final char[] GROUPNAME = (new String("we don't have time for this     ")).toCharArray();
     private static final int NUMBEROFSERVERS = 1; //FIXME: Maybe move to main
     public static final int APPLICATIONPORT = 3117;
     public static final int MAXMESSAGESIZE = 586;

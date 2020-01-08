@@ -21,20 +21,31 @@ public class RunnableMessageHandler implements Runnable {
 
     @Override
     public void run() {
-        char messageType = Message.getMessageTypeFromMessage(message);
-        if (messageType == 1) { //Discover
-            /*SEND OFFER MESSAGE*/
-            sendOfferMessage();
-        } else if (messageType == 3) { //Request
-            Message receivedMessage = Message.getMessageFromBytes(message);
-            String result = tryDeHash(String.copyValueOf(receivedMessage.getOriginalStringStart()),String.copyValueOf(receivedMessage.getOriginalStringEnd()),String.copyValueOf(receivedMessage.getHash())); //FIXME: NO LENGTH
-            if (result != null) {
-                /*SEND ACK MESSAGE*/
-                sendACKMessage(result.toCharArray(), receivedMessage.getHash(),receivedMessage.getOriginalLength());
-            } else {
-                /*SEND NACK MESSAGE*/
-                sendNACKMessage(receivedMessage.getHash(),receivedMessage.getOriginalLength());
+        System.out.println("Received message from IP: "+UDPPacket.getAddress() + " Port: "+ UDPPacket.getPort() + " Length: "+message.length);
+        try {
+            char messageType = Message.getMessageTypeFromMessage(message);
+            if (messageType == 1) { //Discover
+                /*SEND OFFER MESSAGE*/
+                sendOfferMessage();
+            } else if (messageType == 3) { //Request
+                Message receivedMessage = Message.getMessageFromBytes(message);
+                String result = null;
+                if (receivedMessage !=null){
+                    result = tryDeHash(String.copyValueOf(receivedMessage.getOriginalStringStart()),String.copyValueOf(receivedMessage.getOriginalStringEnd()),String.copyValueOf(receivedMessage.getHash()));
+                }
+                if (result != null) {
+                    /*SEND ACK MESSAGE*/
+                    sendACKMessage(result.toCharArray(), receivedMessage.getHash(),receivedMessage.getOriginalLength());
+                    System.out.println("Sent ACK - result: "+ result + "from IP: "+UDPPacket.getAddress()+ " Group: "+ receivedMessage.getTeamName());
+                } else {
+                    /*SEND NACK MESSAGE*/
+                    sendNACKMessage(receivedMessage.getHash(),receivedMessage.getOriginalLength());
+                    System.out.println("Sent NACK - result: "+ result + "from IP: "+UDPPacket.getAddress()+ " Group: "+ receivedMessage.getTeamName());
+                }
             }
+        } catch (Exception e){
+            System.out.println("Bad message");
+            System.out.println("from IP: "+UDPPacket.getAddress() + " Port: "+ UDPPacket.getPort() + " Length: "+message.length);
         }
     }
 
@@ -77,8 +88,17 @@ public class RunnableMessageHandler implements Runnable {
 
 
     private String tryDeHash(String startRange, String endRange, String originalHash) {
-        BigInteger start = convertStringToInt(startRange);
-        BigInteger end = convertStringToInt(endRange);
+        BigInteger start;
+        BigInteger end;
+        try {
+            start = convertStringToInt(startRange);
+            end = convertStringToInt(endRange);
+
+        }catch (RuntimeException e){
+            System.out.println("DeHash problem - Hash: "+ originalHash);
+            System.out.println("startRange: "+ originalHash + "endRange: "+endRange);
+            return null;
+        }
         int length = startRange.length();
 
 
@@ -110,7 +130,7 @@ public class RunnableMessageHandler implements Runnable {
 
     }
 
-    private BigInteger convertStringToInt(String toConvert) {
+    private BigInteger convertStringToInt(String toConvert)  throws RuntimeException{
         char[] charArray = toConvert.toCharArray();
         BigInteger num = new BigInteger("0");
         for (char c : charArray) {

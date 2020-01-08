@@ -130,16 +130,21 @@ public class Client extends AClient {
 
         InetAddress[] servers = new InetAddress[discoveredServers.size()];
         discoveredServers.toArray(servers);
-
-        System.out.println("Client - servers discovered: ");
-        for (InetAddress address : servers) {
-            System.out.println(address.toString());
+        if (servers.length>0) {
+            System.out.println("Client - servers discovered: ");
+            for (InetAddress address : servers) {
+                System.out.println(address.toString());
+            }
+        } else{
+            System.out.println("Client - no servers were detected");
+            displayResults(result, solved);
+            return;
         }
+
+
         int serverIndex = 0;
         String[] domains = divideToDomains(inputLength, discoveredServers.size());
-        if (domains ==null){
-            displayResults(result, solved);
-        }
+
         for (int i = 0; i < domains.length; i = i + 2) {
             sendRequestMessage(domains[i], domains[i + 1], servers[serverIndex++]);
         }
@@ -167,7 +172,7 @@ public class Client extends AClient {
 
     private void displayResults(char[] result, boolean solved) {
         if (!solved || result == null) {
-            System.out.println("\tWe couldn't crack your code\t\nThe servers gods have been beaten!\n\tThe APOCALYPSE has been delayed (until next time)");
+            System.out.println("\tWe couldn't crack your code\n\tThe servers gods have been beaten!\n\tThe APOCALYPSE has been delayed (until next time)");
         } else {
             System.out.println("\t\tHA~HA~HA    \n\tWe have cracked your code \n\tYou have chosen poorly");
             System.out.println("\tThe input string is " + String.copyValueOf(result));
