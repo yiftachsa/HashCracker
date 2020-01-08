@@ -11,7 +11,7 @@ public class Client extends AClient {
     @Override
     public boolean startUp() {
         try {
-            this.UDPSocket = new DatagramSocket(4062); //Because Merav loves herself
+            this.UDPSocket = new DatagramSocket(4063); //Because Merav loves herself
         } catch (SocketException e) {
             return false;
         }
@@ -139,6 +139,7 @@ public class Client extends AClient {
         String[] domains = divideToDomains(inputLength, discoveredServers.size());
         if (domains ==null){
             displayResults(result, solved);
+            return;
         }
         for (int i = 0; i < domains.length; i = i + 2) {
             sendRequestMessage(domains[i], domains[i + 1], servers[serverIndex++]);
