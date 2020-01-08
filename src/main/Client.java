@@ -115,7 +115,6 @@ public class Client extends AClient {
         long offerCollectionCurrentTime;
         long offerCollectionEndTime = System.currentTimeMillis() + OFFERSTIMEOUT;
         while ((offerCollectionCurrentTime = System.currentTimeMillis()) < offerCollectionEndTime) {
-            System.out.println("Client - Before receiving OFFER message");
             UDPPacket = receivePacket(receivedMessageBytes,(offerCollectionEndTime - offerCollectionCurrentTime));
             if (UDPPacket == null) {
                 continue;
@@ -142,9 +141,7 @@ public class Client extends AClient {
             displayResults(result, solved);
         }
         for (int i = 0; i < domains.length; i = i + 2) {
-            System.out.println("Client - Before send REQUEST messages");
             sendRequestMessage(domains[i], domains[i + 1], servers[serverIndex++]);
-            System.out.println("Client - After send REQUEST messages");
         }
 
         long responsesCollectionCurrentTime;
@@ -170,15 +167,15 @@ public class Client extends AClient {
 
     private void displayResults(char[] result, boolean solved) {
         if (!solved || result == null) {
-            System.out.println("\tThe servers gods have been beaten!\n\tWe couldn't crack your code\n\tThe APOCALYPSE has been delayed (until next time)");
+            System.out.println("\tWe couldn't crack your code\t\nThe servers gods have been beaten!\n\tThe APOCALYPSE has been delayed (until next time)");
         } else {
-            System.out.println("    HA~HA~HA    \n\tWe have cracked your code \n\tYou have chosen poorly");
+            System.out.println("\t\tHA~HA~HA    \n\tWe have cracked your code \n\tYou have chosen poorly");
             System.out.println("\tThe input string is " + String.copyValueOf(result));
         }
     }
 
 
-    private DatagramPacket receivePacket(byte[] receivedMessageBytes, long offerCollectionCurrentTime) { //FIXME: Recive timeout as parameter
+    private DatagramPacket receivePacket(byte[] receivedMessageBytes, long offerCollectionCurrentTime) {
         DatagramPacket UDPPacket = new DatagramPacket(receivedMessageBytes, receivedMessageBytes.length);
         try {
             UDPSocket.setSoTimeout((int) offerCollectionCurrentTime);
@@ -199,7 +196,7 @@ public class Client extends AClient {
     }
 
     private void sendMessage(InetAddress ip, byte[] messageByteArray) {
-        DatagramPacket UDPRequestPacket = new DatagramPacket(messageByteArray, messageByteArray.length, ip, 3117);
+        DatagramPacket UDPRequestPacket = new DatagramPacket(messageByteArray, messageByteArray.length, ip, HashCracker.APPLICATIONPORT);
         try {
             this.UDPSocket.send(UDPRequestPacket);
         } catch (IOException e) {
@@ -214,11 +211,9 @@ public class Client extends AClient {
 
         this.UDPSocket.setBroadcast(true);
 
-        DatagramPacket UDPDiscoverPacket = new DatagramPacket(messageByteArray, messageByteArray.length, InetAddress.getByName("255.255.255.255"), 3117);
+        DatagramPacket UDPDiscoverPacket = new DatagramPacket(messageByteArray, messageByteArray.length, InetAddress.getByName("255.255.255.255"), HashCracker.APPLICATIONPORT);
 
-        System.out.println("Client - Before Discover message sent");
         UDPSocket.send(UDPDiscoverPacket);
-        System.out.println("Client - After Discover message sent");
 
         this.UDPSocket.setBroadcast(false);
 

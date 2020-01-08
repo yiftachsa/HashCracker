@@ -10,10 +10,10 @@ public class Server extends AServer {
 
     @Override
     public boolean startUp() {
-        //Create a socket to listen at port 3117
+        //Create a socket to listen at port APPLICATIONPORT
         if (this.UDPSocket == null) {
             try {
-                this.UDPSocket = new DatagramSocket(3117);
+                this.UDPSocket = new DatagramSocket(HashCracker.APPLICATIONPORT);
             } catch (SocketException e) {
                 return false;
             }
@@ -41,7 +41,6 @@ public class Server extends AServer {
 
             //});
             //serverThread.start();
-            //System.out.println("Server - thread started");
         }
 
     }

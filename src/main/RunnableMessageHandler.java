@@ -23,10 +23,8 @@ public class RunnableMessageHandler implements Runnable {
     public void run() {
         char messageType = Message.getMessageTypeFromMessage(message);
         if (messageType == 1) { //Discover
-            System.out.println("Server - Received discovered message");
             /*SEND OFFER MESSAGE*/
             sendOfferMessage();
-            System.out.println("Server - Send OFFER message");
         } else if (messageType == 3) { //Request
             Message receivedMessage = Message.getMessageFromBytes(message);
             String result = tryDeHash(String.copyValueOf(receivedMessage.getOriginalStringStart()),String.copyValueOf(receivedMessage.getOriginalStringEnd()),String.copyValueOf(receivedMessage.getHash())); //FIXME: NO LENGTH

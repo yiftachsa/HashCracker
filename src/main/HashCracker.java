@@ -2,8 +2,8 @@ public class HashCracker {
 
     public static final char[] GROUPNAME = (new String("we don't have time for this")).toCharArray();
     private static final int NUMBEROFSERVERS = 1; //FIXME: Maybe move to main
-
-    public static final int MAXMESSAGESIZE = 6480;
+    public static final int APPLICATIONPORT = 3117;
+    public static final int MAXMESSAGESIZE = 586;
 
     public static void main(String[] args) {
 
@@ -29,13 +29,11 @@ public class HashCracker {
             return;
         }
         //From now on good inputs are assumed
-        //TODO:Begin Communication
         client.beginCommunication();
 
 
         shutdown(client, servers);
     }
-
 
     public static void clientStation() {
         System.out.println("Raising the Client (like the baby ANTICHRIST)");
@@ -53,7 +51,7 @@ public class HashCracker {
 
     }
 
-    public static void serverStation(long upTime) {
+    public static void serverStation(/*long upTime*/) {
         System.out.println("Raising the Servers (from HELL)");
         AServer server = new Server();
         if (!server.startUp()) {
