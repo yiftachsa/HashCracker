@@ -99,6 +99,9 @@ public class Client extends AClient {
 
     @Override
     public void beginCommunication() {
+        boolean solved = false;
+        char[] result = null;
+
         try {
             discover();
         } catch (IOException e) {
@@ -135,6 +138,9 @@ public class Client extends AClient {
         }
         int serverIndex = 0;
         String[] domains = divideToDomains(inputLength, discoveredServers.size());
+        if (domains ==null){
+            displayResults(result, solved);
+        }
         for (int i = 0; i < domains.length; i = i + 2) {
             System.out.println("Client - Before send REQUEST messages");
             sendRequestMessage(domains[i], domains[i + 1], servers[serverIndex++]);
@@ -143,8 +149,6 @@ public class Client extends AClient {
 
         long responsesCollectionCurrentTime;
         long responsesCollectionEndTime = System.currentTimeMillis() + SERVERRESPONSETIMEOUT;
-        boolean solved = false;
-        char[] result = null;
         while (discoveredServers.size() > 0 && !solved && ((responsesCollectionCurrentTime = System.currentTimeMillis()) < responsesCollectionEndTime)) {
             UDPPacket = receivePacket(receivedMessageBytes, (responsesCollectionEndTime-responsesCollectionCurrentTime));
             if (UDPPacket == null) {
@@ -177,7 +181,7 @@ public class Client extends AClient {
     private DatagramPacket receivePacket(byte[] receivedMessageBytes, long offerCollectionCurrentTime) { //FIXME: Recive timeout as parameter
         DatagramPacket UDPPacket = new DatagramPacket(receivedMessageBytes, receivedMessageBytes.length);
         try {
-            UDPSocket.setSoTimeout((int) offerCollectionCurrentTime); //FIXME:!!
+            UDPSocket.setSoTimeout((int) offerCollectionCurrentTime);
             UDPSocket.receive(UDPPacket);
         } catch (IOException e) {
             return null;
@@ -222,31 +226,34 @@ public class Client extends AClient {
 
 
     private static String[] divideToDomains(int stringLength, int numOfServers) {
-        String[] domains = new String[numOfServers * 2];
+        if (numOfServers>0) {
+            String[] domains = new String[numOfServers * 2];
 
-        StringBuilder first = new StringBuilder(); //aaa
-        StringBuilder last = new StringBuilder(); //zzz
+            StringBuilder first = new StringBuilder(); //aaa
+            StringBuilder last = new StringBuilder(); //zzz
 
-        for (int i = 0; i < stringLength; i++) {
-            first.append("a"); //aaa
-            last.append("z"); //zzz
+            for (int i = 0; i < stringLength; i++) {
+                first.append("a"); //aaa
+                last.append("z"); //zzz
+            }
+
+            int total = convertStringToInt(last.toString());
+            int perServer = (int) Math.floor(((double) total) / ((double) numOfServers));
+
+            domains[0] = first.toString(); //aaa
+            domains[domains.length - 1] = last.toString(); //zzz
+            int summer = 0;
+
+            for (int i = 1; i <= domains.length - 2; i += 2) {
+                summer += perServer;
+                domains[i] = converxtIntToString(summer, stringLength); //end domain of server
+                summer++;
+                domains[i + 1] = converxtIntToString(summer, stringLength); //start domain of next server
+            }
+
+            return domains;
         }
-
-        int total = convertStringToInt(last.toString());
-        int perServer = (int) Math.floor(((double) total) / ((double) numOfServers));
-
-        domains[0] = first.toString(); //aaa
-        domains[domains.length - 1] = last.toString(); //zzz
-        int summer = 0;
-
-        for (int i = 1; i <= domains.length - 2; i += 2) {
-            summer += perServer;
-            domains[i] = converxtIntToString(summer, stringLength); //end domain of server
-            summer++;
-            domains[i + 1] = converxtIntToString(summer, stringLength); //start domain of next server
-        }
-
-        return domains;
+        return null;
     }
 
     private static int convertStringToInt(String toConvert) {

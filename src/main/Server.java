@@ -28,9 +28,7 @@ public class Server extends AServer {
             UDPPacket = new DatagramPacket(receivedMessage, receivedMessage.length);
 
             try {
-                System.out.println("Server - Before receiving message");
                 UDPSocket.receive(UDPPacket);
-                System.out.println("Server - After receiving message");
             } catch (IOException e) {
                 e.printStackTrace();
             }
