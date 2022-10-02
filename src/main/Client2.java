@@ -1,5 +1,4 @@
-
-public class ClientMain {
+public class Client2 {
     public static void main(String[] args) {
         /*
                 //voodoo -> 006345b12ad566bf7891be05cef5909df928cbcd
@@ -8,7 +7,7 @@ public class ClientMain {
         //word -> 3cbcd90adc4b192a87a625850b7f231caddf0eb3
          */
 
-        HashCracker.clientStation(4032);
+        HashCracker.clientStation(4062);
 
 
 

@@ -35,10 +35,10 @@ public class HashCracker {
         shutdown(client, servers);
     }
 
-    public static void clientStation() {
+    public static void clientStation(int port) {
         System.out.println("Raising the Client (like the baby ANTICHRIST)");
         AClient client = new Client();
-        if (!client.startUp()) {
+        if (!client.startUp(port)) {
             System.out.println("client died - sad, so sad ~~> killing the servers and exiting");
             return;
         }
@@ -108,7 +108,7 @@ public class HashCracker {
 
         if (isGoodStartUp) {
             System.out.println("Raising the Client (like the baby ANTICHRIST)");
-            if (!client.startUp()) {
+            if (!client.startUp(4062)) {
                 System.out.println("client died - sad, so sad ~~> killing the servers and exiting");
                 isGoodStartUp = false;
                 //Shutting down all the servers we already raised

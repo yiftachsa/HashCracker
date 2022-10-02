@@ -174,7 +174,7 @@ public class Message {
         try {
             teamName = getTeamNameFromMessage(message);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Bad Team Name");
         }
 
 

@@ -9,9 +9,9 @@ public class Client extends AClient {
 
 
     @Override
-    public boolean startUp() {
+    public boolean startUp(int port) {
         try {
-            this.UDPSocket = new DatagramSocket(4062); //Because Merav loves herself
+            this.UDPSocket = new DatagramSocket(port); //Because Merav loves herself
         } catch (SocketException e) {
             return false;
         }
@@ -29,6 +29,10 @@ public class Client extends AClient {
         char[] hashInput = null;
         int inputLength = -1;
 
+        if(groupname.length()!=32){
+            System.out.println("bad GroupName");
+            return false;
+        }
         //Start of program
         System.out.println("Welcome to " + groupname + ".\n");
 

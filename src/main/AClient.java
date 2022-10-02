@@ -3,7 +3,7 @@ import java.net.DatagramSocket;
 public abstract class AClient {
 
     protected static final long SERVERRESPONSETIMEOUT = 100000; //FIXME: Set a timer
-    protected static final long OFFERSTIMEOUT = 1000;
+    protected static final long OFFERSTIMEOUT = 2000;
 
     protected char[] hash;
 
@@ -14,7 +14,7 @@ public abstract class AClient {
      * Start up the client's communication socket.
      * @return - boolean - true if the client started up successfully.
      */
-    public abstract boolean startUp();
+    public abstract boolean startUp(int port);
 
     /**
      * Shutting down the client's communication socket.

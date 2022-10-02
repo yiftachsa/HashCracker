@@ -36,11 +36,11 @@ public class RunnableMessageHandler implements Runnable {
                 if (result != null) {
                     /*SEND ACK MESSAGE*/
                     sendACKMessage(result.toCharArray(), receivedMessage.getHash(),receivedMessage.getOriginalLength());
-                    System.out.println("Sent ACK - result: "+ result + "from IP: "+UDPPacket.getAddress()+ " Group: "+ receivedMessage.getTeamName());
+                    System.out.println("Sent ACK - result: "+ result + " from IP: "+UDPPacket.getAddress()+ " Group: "+ String.copyValueOf(receivedMessage.getTeamName()));
                 } else {
                     /*SEND NACK MESSAGE*/
                     sendNACKMessage(receivedMessage.getHash(),receivedMessage.getOriginalLength());
-                    System.out.println("Sent NACK - result: "+ result + "from IP: "+UDPPacket.getAddress()+ " Group: "+ receivedMessage.getTeamName());
+                    System.out.println("Sent NACK - from IP: "+UDPPacket.getAddress()+ " Group: "+ String.copyValueOf(receivedMessage.getTeamName()));
                 }
             }
         } catch (Exception e){
